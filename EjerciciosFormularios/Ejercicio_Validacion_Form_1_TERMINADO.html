@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+
+<head>
+	<meta charset="UTF-8" />
+	<title>Validar Formularios</title>
+	<style type="text/css">
+		span {
+			color: red;
+		}
+	</style>
+	<script>
+		function validarFormulario() {
+			let correcto = true; // Boolean para comprobar si es correcto o no el formulario.
+			// Obtener los elementos y su contenido.
+			const nombre = document.getElementById("nombre");
+			const apellidos = document.getElementById("apellidos");
+			const dni = document.getElementById("dni");
+			const sexo = document.getElementById("sexo");
+			const dia = document.getElementById("f_dia");
+			const mes = document.getElementById("f_mes");
+			const ano = document.getElementById("f_ano");
+			const sugerencia = document.getElementById("sugerencia");
+
+			const infoNombre = document.getElementById("info_nombre");
+			const infoApellidos = document.getElementById("info_apellidos");
+			const infoDni = document.getElementById("info_dni");
+			const infoSexo = document.getElementById("info_sexo");
+			const infoFecha = document.getElementById("info_fecha");
+			const infoSugerencia = document.getElementById("info_sugerencia");
+
+
+			//Nombre. Obligatorio. Solo letras (se permiten tildes, ñ y espacios). Mínimo 2 letras.
+			infoNombre.textContent = "";
+			const nombreTexto = nombre.value.trim();
+			if (nombreTexto === "") {
+				infoNombre.textContent = "Campo obligatorio";
+				correcto = false;
+			} else if (!/^[A-Za-zÁÉÍÓÚáéíóúÜüÑñ\s]+$/.test(nombreTexto)) {
+				infoNombre.textContent = "Solo se permiten letras";
+				correcto = false;
+			} else {
+				const letrasNombre = nombreTexto.replace(/\s/g, "");
+				if (letrasNombre.length < 2) {
+					infoNombre.textContent = "Mínimo 2 letras";
+					correcto = false;
+				}
+			}
+
+			// Apellidos. Obligatorio. Solo letras. Mínimo 4 letras.
+			infoApellidos.textContent = "";
+			const apellidosTexto = apellidos.value.trim();
+			if (apellidosTexto === "") {
+				infoApellidos.textContent = "Campo obligatorio";
+				correcto = false;
+			} else if (!/^[A-Za-zÁÉÍÓÚáéíóúÜüÑñ\s]+$/.test(apellidosTexto)) {
+				infoApellidos.textContent = "Solo se permiten letras";
+				correcto = false;
+			} else {
+				const letrasApellidos = apellidosTexto.replace(/\s/g, "");
+				if (letrasApellidos.length < 4) {
+					infoApellidos.textContent = "Mínimo 4 letras";
+					correcto = false;
+				}
+			}
+
+			/** NIF o DNI. Obligatorio. Formato: 8 números y una letra. Además, la letra debe ser la correcta para ese
+			/   número (se calcula con el resto de dividir el número entre 23).
+			*/
+			infoDni.textContent = "";
+			const dniTexto = dni.value.trim().toUpperCase();
+			if (dniTexto === "") {
+				infoDni.textContent = "Campo obligatorio";
+				correcto = false;
+			} else if (!/^\d{8}[A-Z]$/.test(dniTexto)) {
+				infoDni.textContent = "Formato incorrecto";
+				correcto = false;
+			} else {
+				const numero = parseInt(dniTexto.substring(0, 8));
+				const letra = dniTexto.charAt(8);
+				const letrasNIF = "TRWAGMYFPDXBNJZSQVHLCKE";
+				const letraCorrecta = letrasNIF.charAt(numero % 23);
+				if (letra !== letraCorrecta) {
+					infoDni.textContent = "La letra del NIF es incorrecta";
+					correcto = false;
+				}
+			}
+
+			// Sexo. Debe elegirse una opción distinta de «Selecciona una opción».
+			infoSexo.textContent = "";
+			if (sexo.value === "") {
+				infoSexo.textContent = "Debes seleccionar una opción";
+				correcto = false;
+			}
+
+			/**
+			 * Fecha. Las tres cajas son obligatorias. Día y mes de 1 o 2 cifras, año de 4 cifras. La fecha debe
+			 *	existir realmente en el calendario (se tienen en cuenta los meses de 28, 30 y 31 días y
+			 *	los años bisiestos).
+			 */
+			infoFecha.textContent = "";
+			const textoDia = dia.value.trim();
+			const textoMes = mes.value.trim();
+			const textoAno = ano.value.trim();
+
+			if (textoDia === "" || textoMes === "" || textoAno === "") {
+				infoFecha.textContent = "Debes rellenar día, mes y año";
+				correcto = false;
+			} else {
+				const numeroDia = parseInt(textoDia);
+				const numeroMes = parseInt(textoMes);
+				const numeroAno = parseInt(textoAno);
+
+				let fecha = new Date(numeroAno, numeroMes - 1, numeroDia);
+
+				if (fecha.getFullYear() !== numeroAno ||
+					fecha.getMonth() !== numeroMes - 1 ||
+					fecha.getDate() !== numeroDia) {
+					infoFecha.textContent = "La fecha no existe";
+					correcto = false;
+				}
+			}
+
+			// Sugerencia. Obligatoria.
+			infoSugerencia.textContent = "";
+
+			if (sugerencia.value.trim() === "") {
+				infoSugerencia.textContent = "Campo obligatorio";
+				correcto = false;
+			}
+			return correcto;
+
+		}
+		// Borrar los mensajes de error.
+		function limpiarErrores() {
+			document.getElementById("info_nombre").textContent = "";
+			document.getElementById("info_apellidos").textContent = "";
+			document.getElementById("info_dni").textContent = "";
+			document.getElementById("info_sexo").textContent = "";
+			document.getElementById("info_fecha").textContent = "";
+			document.getElementById("info_sugerencia").textContent = "";
+		}
+
+		// Colocar el foco en Nombre al cargar.
+		function iniciar() {
+			document.getElementById("nombre").focus();
+		}
+	</script>
+</head>
+
+<body onload="iniciar()">
+
+	<h1>Ejercicio Validación de Formularios</h1>
+	<form id="formulario_1" onsubmit="return validarFormulario()" onreset="limpiarErrores()">
+		<p>
+		<h3>Formulario de Registro:</h3>
+		<label for="nombre">Nombre: </label>
+		<input type="text" name="nombre" id="nombre" maxlength="25" size="15" />
+		<span id="info_nombre"></span>
+		<div>(Mínimo 2 letras)</div>
+		<br><br>
+
+		<label for="apellidos">Apellidos: </label>
+		<input type="text" name="apellidos" id="apellidos" maxlength="50" size="25" />
+		<span id="info_apellidos"></span>
+		<div>(Mínimo 4 letras)</div>
+		<br><br>
+
+		<label for="dni">NIF: </label>
+		<input type="text" name="dni" id="dni" maxlength="9" size="9" />
+		<span id="info_dni"></span>
+		<br><br><br>
+
+		<label>Sexo: </label>
+		<select id="sexo">
+			<option value="">Selecciona una opción</option>
+			<option value="F">Femenino</option>
+			<option value="M">Masculino</option>
+			<option value="Y">Ya quisiera yo</option>
+		</select>
+		<span id="info_sexo"></span>
+		<br><br><br>
+
+		<label for="f_dia">Fecha: </label>
+		<input type="text" id="f_dia" maxlength="2" size="1" /> /
+		<input type="text" id="f_mes" maxlength="2" size="1" /> /
+		<input type="text" id="f_ano" maxlength="4" size="3" /> (dd/mm/aaaa)
+		<span id="info_fecha"></span>
+		<br><br><br>
+
+		<label for="sugerencia">Alguna sugerencia: </label>
+		<textarea id="sugerencia" name="sugerencia"></textarea>
+		<span id="info_sugerencia"></span>
+		<br><br>
+		</p>
+		<p><b>Todos los campos son obligatorios.</b></p>
+		<br>
+		<p>
+			<input type="submit" value="ENVIAR">
+			<br><br>
+			<input type="reset" value="Limpiar">
+
+		</p>
+	</form>
+</body>
+
+</html>
